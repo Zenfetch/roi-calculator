@@ -90,7 +90,7 @@ const RoiCalculator = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <Label htmlFor="rfpsPerYear" className="h-12 block">
-              How many RFPs / Contracts does your company review each year?
+              How many RFPs / Proposals does your company review each year?
             </Label>
             <Input
               id="rfpsPerYear"
