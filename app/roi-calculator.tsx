@@ -89,7 +89,7 @@ const RoiCalculator = () => {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <Label htmlFor="rfpsPerYear">
+            <Label htmlFor="rfpsPerYear" className="h-12 block">
               How many RFPs / Contracts does your company review each year?
             </Label>
             <Input
@@ -101,7 +101,7 @@ const RoiCalculator = () => {
             />
           </div>
           <div>
-            <Label htmlFor="hourlyRate">
+            <Label htmlFor="hourlyRate" className="h-12 block">
               Fully Burdened Average Hourly Rate* ($)
             </Label>
             <Input
@@ -113,7 +113,7 @@ const RoiCalculator = () => {
             />
           </div>
           <div>
-            <Label htmlFor="efficiencyGain">
+            <Label htmlFor="efficiencyGain" className="h-12 block">
               Average efficiency gain per task** (%)
             </Label>
             <Input
