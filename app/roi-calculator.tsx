@@ -6,6 +6,7 @@ import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import dynamic from 'next/dynamic';
 // import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 // import { PDFDownloadButton } from './components/pdf-download-button';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 const PDFDownloadLink = dynamic(
   () => import('@react-pdf/renderer').then(mod => mod.PDFDownloadLink),
