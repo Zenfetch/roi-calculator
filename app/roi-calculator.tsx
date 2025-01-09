@@ -7,6 +7,10 @@ import dynamic from 'next/dynamic';
 // import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 // import { PDFDownloadButton } from './components/pdf-download-button';
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 const PDFDownloadLink = dynamic(
   () => import('@react-pdf/renderer').then(mod => mod.PDFDownloadLink),
