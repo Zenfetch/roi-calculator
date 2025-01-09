@@ -1,7 +1,339 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import dynamic from 'next/dynamic';
+import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+// import { PDFDownloadButton } from './components/pdf-download-button';
+
+const PDFDownloadLink = dynamic(
+  () => import('@react-pdf/renderer').then(mod => mod.PDFDownloadLink),
+  { ssr: false }
+) as any;
+
+const pdfStyles = StyleSheet.create({
+  page: {
+    padding: 40,
+    backgroundColor: '#FAFCFE',
+    color: '#051E2D',
+  },
+  title: {
+    fontSize: 42,
+    marginBottom: 12,
+    color: '#051E2D',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontFamily: 'Helvetica-Bold',
+  },
+  subtitle: {
+    fontSize: 18,
+    color: '#6E6C6A',
+    textAlign: 'center',
+    marginBottom: 40,
+  },
+  section: {
+    marginBottom: 20,
+    padding: 24,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    border: '1 solid #EAEAEA',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+  },
+  sectionTitle: {
+    fontSize: 20,
+    color: '#359FA6',
+    marginBottom: 20,
+    fontWeight: 'bold',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  sectionNumber: {
+    backgroundColor: '#359FA6',
+    color: 'white',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    textAlign: 'center',
+    marginRight: 12,
+    fontSize: 18,
+    padding: 7,
+    fontFamily: 'Helvetica-Bold',
+    boxShadow: '0 2px 4px rgba(53,159,166,0.2)',
+  },
+  taskGroup: {
+    marginBottom: 16,
+    padding: 20,
+    backgroundColor: '#FAFCFE',
+    borderRadius: 12,
+    border: '1 solid #EAEAEA',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    padding: 10,
+    borderBottom: '1 solid #EAEAEA',
+    alignItems: 'center',
+  },
+  label: {
+    fontSize: 14,
+    color: '#6E6C6A',
+    fontFamily: 'Helvetica',
+  },
+  value: {
+    fontSize: 16,
+    color: '#051E2D',
+    fontWeight: 'bold',
+    fontFamily: 'Helvetica-Bold',
+  },
+  highlight: {
+    fontSize: 16,
+    color: '#359FA6',
+    fontWeight: 'bold',
+    fontFamily: 'Helvetica-Bold',
+  },
+  summaryBox: {
+    backgroundColor: '#F7FAFB',
+    padding: 24,
+    borderRadius: 8,
+    border: '1 solid #E5EEF0',
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  gradientBox: {
+    marginTop: 32,
+    padding: 40,
+    backgroundColor: '#359FA6',
+    borderRadius: 16,
+    boxShadow: '0 4px 6px rgba(53,159,166,0.2)',
+  },
+  gradientTitle: {
+    color: 'white',
+    fontSize: 28,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+    fontFamily: 'Helvetica-Bold',
+  },
+  gradientValue: {
+    color: 'white',
+    fontSize: 52,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 12,
+    fontFamily: 'Helvetica-Bold',
+  },
+  gradientSubtext: {
+    color: 'white',
+    opacity: 0.9,
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  footer: {
+    marginTop: 40,
+    textAlign: 'center',
+    color: '#6E6C6A',
+    fontSize: 12,
+    borderTop: '1 solid #EAEAEA',
+    paddingTop: 20,
+    fontFamily: 'Helvetica',
+  },
+  icon: {
+    width: 24,
+    height: 24,
+    marginRight: 8,
+  },
+  divider: {
+    borderBottom: '2 solid #EAEAEA',
+    marginVertical: 24,
+  },
+  statBox: {
+    backgroundColor: 'white',
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 12,
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+  },
+});
+
+interface ROIResults {
+  totalInvestment: number;
+  expectedReturn: number;
+  roiPercentage: number;
+}
+
+const ROIDocument = ({ results, totals, growthPotential, inputs, tasks }: { 
+  results: ROIResults;
+  totals: any;
+  growthPotential: any;
+  inputs: any;
+  tasks: any;
+}) => (
+  <Document>
+    {/* First Page */}
+    <Page size="A4" style={pdfStyles.page}>
+      {/* Cover Page with Gradient Background */}
+      <View style={[pdfStyles.section, { marginBottom: 0, backgroundColor: '#359FA6', padding: 40 }]}>
+        <View style={{ borderBottom: '2 solid rgba(255,255,255,0.1)', marginBottom: 20 }} />
+        
+        <Text style={[pdfStyles.title, { color: 'white' }]}>ROI Calculator</Text>
+        <Text style={[pdfStyles.subtitle, { color: 'white', opacity: 0.9 }]}>
+          Discover Your Potential Savings with GovEagle
+        </Text>
+        
+        {/* Summary Box */}
+        <View style={[pdfStyles.summaryBox, { backgroundColor: 'white', marginTop: 40 }]}>
+          <Text style={[pdfStyles.sectionTitle, { marginBottom: 12 }]}>Annual Impact Summary</Text>
+          <View style={pdfStyles.summaryRow}>
+            <Text style={pdfStyles.label}>Cost Savings:</Text>
+            <Text style={pdfStyles.highlight}>${totals.annualSavings.toLocaleString()}</Text>
+          </View>
+          <View style={pdfStyles.summaryRow}>
+            <Text style={pdfStyles.label}>Potential New Revenue:</Text>
+            <Text style={pdfStyles.highlight}>${growthPotential.potentialNewRevenue.toLocaleString()}</Text>
+          </View>
+          <View style={[pdfStyles.summaryRow, { marginTop: 20, borderTop: '1 solid #EAEAEA', paddingTop: 20 }]}>
+            <Text style={[pdfStyles.label, { fontSize: 18 }]}>Total Annual Impact:</Text>
+            <Text style={[pdfStyles.highlight, { fontSize: 24, color: '#359FA6' }]}>
+              ${(totals.annualSavings + growthPotential.potentialNewRevenue).toLocaleString()}
+            </Text>
+          </View>
+        </View>
+      </View>
+    </Page>
+
+    {/* Second Page */}
+    <Page size="A4" style={pdfStyles.page}>
+      {/* Company Data Section */}
+      <View style={pdfStyles.section}>
+        <View style={pdfStyles.sectionTitle}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={pdfStyles.sectionNumber}>1</Text>
+            <View>
+              <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#359FA6' }}>Company Data</Text>
+              <Text style={{ fontSize: 14, color: '#6E6C6A', marginTop: 4 }}>Basic information about your organization</Text>
+            </View>
+          </View>
+        </View>
+        <View style={[pdfStyles.taskGroup, { marginBottom: 0 }]}>
+          <View style={pdfStyles.row}>
+            <Text style={pdfStyles.label}>Annual RFPs:</Text>
+            <Text style={pdfStyles.value}>{inputs.rfpsPerYear}</Text>
+          </View>
+          <View style={pdfStyles.row}>
+            <Text style={pdfStyles.label}>Hourly Rate:</Text>
+            <Text style={pdfStyles.value}>${inputs.hourlyRate}</Text>
+          </View>
+          <View style={pdfStyles.row}>
+            <Text style={pdfStyles.label}>Efficiency Gain:</Text>
+            <Text style={pdfStyles.value}>{inputs.efficiencyGain}%</Text>
+          </View>
+          <View style={[pdfStyles.row, { borderBottom: 'none' }]}>
+            <Text style={pdfStyles.label}>Average Contract Size:</Text>
+            <Text style={pdfStyles.value}>${parseInt(inputs.averageAwardSize).toLocaleString()}</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Task Breakdown Section */}
+      <View style={[pdfStyles.section, { marginTop: 20 }]}>
+        <View style={pdfStyles.sectionTitle}>
+          <Text style={pdfStyles.sectionNumber}>2</Text>
+          <Text>Task Breakdown</Text>
+        </View>
+        {tasks.map((task: any, index: any) => {
+          const { hoursUsing, hoursSaved, costSavings } = {
+            hoursUsing: parseFloat(task.hours) * (1 - parseFloat(inputs.efficiencyGain) / 100),
+            hoursSaved: parseFloat(task.hours) * (parseFloat(inputs.efficiencyGain) / 100),
+            costSavings: parseFloat(task.hours) * (parseFloat(inputs.efficiencyGain) / 100) * parseFloat(inputs.hourlyRate)
+          };
+          
+          return (
+            <View key={index} style={[pdfStyles.taskGroup, { marginBottom: 12 }]}>
+              <Text style={{ fontSize: 14, fontWeight: 'bold', marginBottom: 8, color: '#051E2D' }}>
+                {task.name}
+              </Text>
+              <View style={pdfStyles.row}>
+                <Text style={pdfStyles.label}>Hours Manually:</Text>
+                <Text style={pdfStyles.value}>{task.hours}</Text>
+              </View>
+              <View style={pdfStyles.row}>
+                <Text style={pdfStyles.label}>Hours with GovEagle:</Text>
+                <Text style={pdfStyles.value}>{hoursUsing.toFixed(1)}</Text>
+              </View>
+              <View style={[pdfStyles.row, { borderBottom: 'none' }]}>
+                <Text style={pdfStyles.label}>Hours Saved:</Text>
+                <Text style={pdfStyles.highlight}>{hoursSaved.toFixed(1)}</Text>
+              </View>
+            </View>
+          );
+        })}
+      </View>
+    </Page>
+
+    {/* Third Page */}
+    <Page size="A4" style={pdfStyles.page}>
+      {/* Growth Potential Section */}
+      <View style={pdfStyles.section}>
+        <View style={pdfStyles.sectionTitle}>
+          <Text style={pdfStyles.sectionNumber}>3</Text>
+          <Text>Growth Potential</Text>
+        </View>
+        <View style={pdfStyles.taskGroup}>
+          <View style={pdfStyles.summaryRow}>
+            <Text style={pdfStyles.label}>Additional RFPs Pursued:</Text>
+            <Text style={pdfStyles.highlight}>{inputs.additionalRfps}</Text>
+          </View>
+          <View style={pdfStyles.summaryRow}>
+            <Text style={pdfStyles.label}>Conversion Rate:</Text>
+            <Text style={pdfStyles.highlight}>{inputs.conversionRate}%</Text>
+          </View>
+          <View style={pdfStyles.summaryRow}>
+            <Text style={pdfStyles.label}>Additional Contract Wins:</Text>
+            <Text style={pdfStyles.highlight}>
+              {Math.round(growthPotential.potentialNewWins)}
+            </Text>
+          </View>
+          <View style={[pdfStyles.summaryRow, { borderBottom: 'none' }]}>
+            <Text style={pdfStyles.label}>Potential New Revenue:</Text>
+            <Text style={pdfStyles.highlight}>
+              ${growthPotential.potentialNewRevenue.toLocaleString()}
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Final Impact Box */}
+      <View style={pdfStyles.gradientBox}>
+        <View style={{ borderTop: '2 solid rgba(255,255,255,0.1)', marginBottom: 20 }} />
+        
+        <Text style={pdfStyles.gradientTitle}>Your Annual ROI</Text>
+        <Text style={pdfStyles.gradientValue}>
+          ${(totals.annualSavings + growthPotential.potentialNewRevenue).toLocaleString()}
+        </Text>
+        <Text style={pdfStyles.gradientSubtext}>Projected Annual Impact</Text>
+        
+        <View style={{ borderBottom: '2 solid rgba(255,255,255,0.1)', marginTop: 20 }} />
+      </View>
+
+      <Text style={pdfStyles.footer}>Generated by GovEagle ROI Calculator • www.goveagle.com</Text>
+    </Page>
+  </Document>
+);
+
+// Add interface for render prop parameters
+interface PDFRenderProps {
+  blob: Blob | null;
+  url: string | null;
+  loading: boolean;
+  error: Error | null;
+}
 
 const RoiCalculator = () => {
   const [rfpsPerYear, setRfpsPerYear] = useState("24");
@@ -35,6 +367,8 @@ const RoiCalculator = () => {
   );
   const [averageAwardSize, setAverageAwardSize] = useState("1000000");
   const [conversionRate, setConversionRate] = useState("25");
+
+  const [results, setResults] = useState<ROIResults | null>(null);
 
   const calculateSavings = (hours: string) => {
     const hoursNum = parseFloat(hours) || 0;
@@ -89,9 +423,16 @@ const RoiCalculator = () => {
     };
   };
 
+  const totals = calculateTotals();
   const growthPotential = calculateGrowthPotential();
 
-  const totals = calculateTotals();
+  useEffect(() => {
+    setResults({
+      totalInvestment: totals.annualSavings,
+      expectedReturn: growthPotential.potentialNewRevenue,
+      roiPercentage: ((totals.annualSavings + growthPotential.potentialNewRevenue) / 50000) * 100
+    });
+  }, [totals, growthPotential]);
 
   const handleRfpsPerYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newRfpsPerYear = e.target.value;
@@ -512,6 +853,45 @@ const RoiCalculator = () => {
             </div>
           </div>
         </div>
+      </div>
+      <div>
+
+      {results && (
+        <div className="mt-8 text-center">
+          <PDFDownloadLink
+            document={
+              <ROIDocument 
+                results={results}
+                totals={totals}
+                growthPotential={growthPotential}
+                inputs={{
+                  rfpsPerYear,
+                  efficiencyGain,
+                  additionalRfps,
+                  conversionRate,
+                  hourlyRate,
+                  averageAwardSize
+                }}
+                tasks={tasks}
+              />
+            }
+            fileName="roi-calculator-results.pdf"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-ge-teal text-white rounded-lg hover:bg-ge-teal/90 transition-colors shadow-lg font-medium"
+          >
+            {({ loading }: PDFRenderProps) => (
+              <>
+                {loading ? (
+                  'Generating PDF...'
+                ) : (
+                  <div className="flex flex-row items-center gap-1.5">
+                    <p>Download PDF Report</p>
+                  </div>
+                )}
+              </>
+            )}
+            </PDFDownloadLink>
+          </div>
+        )}
       </div>
     </div>
   );
